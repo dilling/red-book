@@ -90,3 +90,52 @@ object List:
 
   def flatMap[A, B](as: List[A], f: A => List[B]): List[B] = 
     foldRight(as, Nil: List[B], (a, b) => append(f(a), b))
+
+  def filter2[A](as: List[A], f: A => Boolean): List[A] =
+    flatMap(as, a => if (f(a)) then List(a) else Nil)
+
+  def addLists(a1: List[Int], a2: List[Int]): List[Int] =
+    (a1, a2) match {
+      case (Nil, Nil) => Nil
+      case (Cons(x, xs), Cons(y, ys)) => Cons(x + y, addLists(xs, ys))
+      case (xs, Nil) => xs
+      case (Nil, ys) => ys
+    }
+
+  def test[A, B, C, D](
+      a1: List[A],
+      a2: List[B], 
+      f1: (A,B) => C,
+      f2: (C, D) => D, 
+      bothEnd: D, 
+      leftRemaining: List[A] => D,
+      rightRemaining: List[B] => D
+  ): D = 
+    (a1, a2) match {
+      case (Nil, Nil) => bothEnd
+      case (Cons(x, xs), Cons(y, ys)) => f2(f1(x, y), test(xs, ys, f1, f2, bothEnd, leftRemaining, rightRemaining))
+      case (xs, Nil) => leftRemaining(xs)
+      case (Nil, ys) => rightRemaining(ys)
+    }
+
+  def zipWith[A](a1: List[A], a2: List[A], f: (A, A) => A): List[A] = 
+    (a1, a2) match {
+      case (Nil, Nil) => Nil
+      case (Cons(x, xs), Cons(y, ys)) => Cons(f(x, y), zipWith(xs, ys, f))
+      case (xs, Nil) => xs
+      case (Nil, ys) => ys
+    }
+
+  def zipWith2[A](a1: List[A], a2: List[A], f: (A, A) => A): List[A] = 
+    test(a1, a2, f, Cons.apply, Nil, identity, identity)
+
+  def hasSubsequence[A](sup: List[A], sub: List[A]): Boolean =
+    (sup, sub) match {
+      case (Nil, Nil) => true
+      case (Cons(x, xs), Cons(y, ys)) => x == y && hasSubsequence(xs, ys)
+      case (Nil, _) => false // subset has more items remaining than list
+      case (_, Nil) => true // subset has no remaining items
+    }
+
+  def hasSubsequence2[A](sup: List[A], sub: List[A]): Boolean =
+    test(sup, sub, _ == _, _ && _, true, _ => false, _ => true)
