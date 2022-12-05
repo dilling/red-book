@@ -66,3 +66,27 @@ object List:
 
   def reverse[A](as: List[A]): List[A] = 
     foldLeft(as, Nil: List[A], (b, a) => Cons(a, b))
+
+  def foldRight2[A, B](as: List[A], acc: B, f: (A, B) => B): B =
+    foldLeft(reverse(as), acc, (b, a) => f(a,b))
+
+  def append[A](a1: List[A], a2: List[A]): List[A] = 
+    foldRight(a1, a2, Cons(_, _))
+
+  def flatten[A](as: List[List[A]]): List[A] = 
+    foldRight(as, Nil: List[A], append)
+
+  def addOne(as: List[Int]): List[Int] = 
+    foldRight(as, Nil: List[Int], (a, b) => Cons(a + 1, b))
+
+  def doubleToString(as: List[Double]): List[String] =
+    foldRight(as, Nil: List[String], (a, b) => Cons(a.toString(), b))
+
+  def map[A, B](as: List[A], f: A => B): List[B] =
+    foldRight(as, Nil: List[B], (a, b) => Cons(f(a), b))
+
+  def filter[A](as: List[A], f: A => Boolean): List[A] =
+    foldRight(as, Nil: List[A], (a, b) => if f(a) then Cons(a, b) else b)
+
+  def flatMap[A, B](as: List[A], f: A => List[B]): List[B] = 
+    foldRight(as, Nil: List[B], (a, b) => append(f(a), b))

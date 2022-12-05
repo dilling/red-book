@@ -54,4 +54,36 @@ class chapter03Spec extends AnyFreeSpec with Matchers {
   "3.12" in {
     reverse(List(1,2,3)) shouldBe List(3,2,1)
   }
+
+  "3.13" in {
+    foldRight2(List(1,2,3), 0, _ + _) shouldBe 6
+  }
+
+  "3.14" in {
+    append(List(1,2), List(3,4)) shouldBe List(1,2,3,4)
+  }
+
+  "3.15" in {
+    flatten(List(List(1,2), List(3,4))) shouldBe List(1,2,3,4)
+  }
+
+  "3.16" in {
+    addOne(List(1,2,3)) shouldBe List(2,3,4)
+  }
+
+  "3.17" in {
+    doubleToString(List(1,2,3)) shouldBe List("1.0", "2.0", "3.0")
+  }
+
+  "3.18" in {
+    map(List(1,2,3), _ + 1) shouldBe List(2,3,4)
+  }
+
+  "3.19" in {
+    filter(List(1,2,3,4), _ % 2 == 0) shouldBe List(2,4)
+  }
+
+  "3.20" in {
+    flatMap(List(1,2,3), a => List(a,a)) shouldBe List(1,1,2,2,3,3)
+  }
 }
