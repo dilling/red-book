@@ -3,6 +3,7 @@ package chapter03
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.should.Matchers
 import chapter03.List._
+import chapter03.Tree._
 import org.scalatest.prop.TableDrivenPropertyChecks
 
 class chapter03Spec extends AnyFreeSpec with Matchers with TableDrivenPropertyChecks {
@@ -116,5 +117,21 @@ class chapter03Spec extends AnyFreeSpec with Matchers with TableDrivenPropertyCh
     forEvery(table) { (l1, l2, expected) =>
       hasSubsequence(l1, l2) shouldBe expected
     }
+  }
+
+  "3.25" in {
+    Branch(Leaf(1), Branch(Leaf(2), Leaf(3))).maximum shouldBe 3
+  }
+
+  "3.26" in {
+    Branch(Leaf(1), Branch(Leaf(2), Leaf(3))).depth shouldBe 3
+  }
+
+  "3.27" in {
+    Branch(Leaf(1), Branch(Leaf(2), Leaf(3))).map(_.toString) shouldBe Branch(Leaf("1"), Branch(Leaf("2"), Leaf("3")))
+  }
+
+  "3.28" in {
+    Branch(Leaf(1), Branch(Leaf(2), Leaf(3))).size2 shouldBe 3
   }
 }
