@@ -1,5 +1,7 @@
 package chapter03
 
+import scala.annotation.tailrec
+
 enum List[+A]:
   case Nil
   case Cons(head: A, tail: List[A])
@@ -129,13 +131,25 @@ object List:
   def zipWith2[A](a1: List[A], a2: List[A], f: (A, A) => A): List[A] = 
     test(a1, a2, f, Cons.apply, Nil, identity, identity)
 
+  @tailrec
   def hasSubsequence[A](sup: List[A], sub: List[A]): Boolean =
-    (sup, sub) match {
-      case (Nil, Nil) => true
-      case (Cons(x, xs), Cons(y, ys)) => x == y && hasSubsequence(xs, ys)
-      case (Nil, _) => false // subset has more items remaining than list
-      case (_, Nil) => true // subset has no remaining items
-    }
+    sup match
+      case _ if startsWith(sup, sub) => true
+      case Cons(_, tail) => hasSubsequence(tail, sub)
+      case _ => false
+    
 
   def hasSubsequence2[A](sup: List[A], sub: List[A]): Boolean =
     test(sup, sub, _ == _, _ && _, true, _ => false, _ => true)
+
+
+  def startsWith[A](list: List[A], prefix: List[A]): Boolean =
+    @tailrec
+    def loop(l: List[A], p: List[A], b: Boolean): Boolean = (l, p) match
+      case (Nil, Nil) => b
+      case (Cons(x, xs), Cons(y, ys)) => loop(xs, ys, x == y && b)
+      case (Nil, _) => false // subset has more items remaining than list
+      case (_, Nil) => b // subset has no remaining items
+
+    loop(list, prefix, true)
+

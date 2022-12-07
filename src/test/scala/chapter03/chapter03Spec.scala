@@ -111,7 +111,8 @@ class chapter03Spec extends AnyFreeSpec with Matchers with TableDrivenPropertyCh
       (List(1,2,3), List(1,2), true),
       (List(1,2,3), List(3,4), false),
       (List(1,2,3), Nil, true),
-      (List(1,2,3), List(1,3), false)
+      (List(1,2,3), List(1,3), false),
+      (List(1,2,3), List(2,3), true),
     )
 
     forEvery(table) { (l1, l2, expected) =>
