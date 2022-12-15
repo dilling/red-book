@@ -73,4 +73,31 @@ class chapter04Spec extends AnyFreeSpec with Matchers with TableDrivenPropertyCh
       sequence(list) shouldBe expected
     }
   }
+
+  "4.6" - {
+    "map" in {
+      val table = Table(
+        ("either", "expected"),
+        (Right(1), Right(2)),
+        (Left("a"), Left("a")),
+      )
+      
+      forEvery(table) { (either, expected) =>
+        either.map(_ * 2) shouldBe expected
+      }
+    }
+
+    "flatmap" in {
+      val table = Table(
+        ("either", "expected"),
+        (Right(1), Right(2)),
+        (Left("a"), Left("a")),
+        (Right(0), Left("err")),
+      )
+      
+      forEvery(table) { (either, expected) =>
+        either.flatMap(d => if (d == 0) then Left("err") else Right(2 / d)) shouldBe expected
+      }
+    }
+  }
 }
