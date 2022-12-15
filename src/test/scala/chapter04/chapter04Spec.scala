@@ -4,7 +4,6 @@ import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.should.Matchers
 import chapter04.Option._
 import org.scalatest.prop.TableDrivenPropertyChecks
-import cha
 
 class chapter04Spec extends AnyFreeSpec with Matchers with TableDrivenPropertyChecks {
   "4.1" - {
@@ -41,8 +40,9 @@ class chapter04Spec extends AnyFreeSpec with Matchers with TableDrivenPropertyCh
   "4.2" in {
     val table = Table(
       ("seq", "variance"),
-      (List(1,2,3), 1),
-      (List(1,3,5), 4),
+      (List(1.0,1,4), Some(2)),
+      (List(1.0,2,3), Some(2.0/3.0)),
+      (List(), None),
     )
 
     forEvery(table) { (l, expected) =>
