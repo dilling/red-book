@@ -25,3 +25,9 @@ object Option:
   def apply[A](a: A): Option[A] = Some(a)
 
   def none[A]: Option[A] = None
+
+  def map2[A, B, C](a: Option[A], b: Option[B])(f: (A, B) => C): Option[C] =
+    a.flatMap(x => b.map(y => f(x,y)))
+
+  def sequence[A](as: List[Option[A]]): Option[List[A]] = 
+    as.foldRight(Option(List.empty[A]))((acc, opt) => map2(acc, opt)(_ :: _))

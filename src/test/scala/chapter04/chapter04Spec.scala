@@ -49,4 +49,28 @@ class chapter04Spec extends AnyFreeSpec with Matchers with TableDrivenPropertyCh
       variance(l) shouldBe expected
     }
   }
+
+  "4.3" in {
+    val table = Table(
+      ("age", "tickets", "expected"),
+      ("2", "3", Some(6)),
+      ("2", "", None),
+    )
+
+    forEvery(table) { (age, tickets, expected) =>
+      parseInsuranceRateQuote(age, tickets) shouldBe expected
+    }
+  }
+
+  "4.4" in {
+    val table = Table(
+      ("list", "expected"),
+      (List(Option(2), Option(3)), Some(List(2,3))),
+      (List(Option(2), None), None),
+    )
+
+    forEvery(table) { (list, expected) =>
+      sequence(list) shouldBe expected
+    }
+  }
 }
