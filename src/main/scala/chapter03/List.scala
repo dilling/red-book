@@ -131,6 +131,16 @@ object List:
   def zipWith2[A](a1: List[A], a2: List[A], f: (A, A) => A): List[A] = 
     test(a1, a2, f, Cons.apply, Nil, identity, identity)
 
+  def zipWithTailrec[A](a1: List[A], a2: List[A], f: (A, A) => A): List[A] = 
+    @tailrec
+    def loop(l1: List[A], l2: List[A], acc: List[A]): List[A] = (l1, l2) match 
+      case (Nil, Nil) => acc
+      case (Cons(x, xs), Cons(y, ys)) => loop(xs, ys, Cons(f(x,y), acc))
+      case (xs, Nil) => append(reverse(xs), acc)
+      case (Nil, ys) => append(reverse(ys), acc)
+
+    reverse(loop(a1, a2, Nil))
+
   @tailrec
   def hasSubsequence[A](sup: List[A], sub: List[A]): Boolean =
     sup match

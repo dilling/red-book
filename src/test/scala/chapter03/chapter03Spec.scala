@@ -100,9 +100,21 @@ class chapter03Spec extends AnyFreeSpec with Matchers with TableDrivenPropertyCh
   }
 
   "3.23" in {
-    zipWith(List(1,2,3), List(1,2,3), _ * _) shouldBe List(1,4,9)
-    zipWith(List(1,2,3,4), List(1,2,3), _ * _) shouldBe List(1,4,9,4)
-    zipWith(List(1,2), List(1,2,3), _ * _) shouldBe List(1,4,3)
+    val table = Table(
+      ("List1", "List2", "expected"),
+      (List(1,2,3), List(1,2,3), List(1,4,9)),
+      (List(1,2,3,4), List(1,2,3), List(1,4,9,4)),
+      (List(1,2), List(1,2,3), List(1,4,3)),
+      (List(1,2,3,4,5), List(1,2,3), List(1,4,9,4,5)),
+    )
+
+    forEvery(table) { (l1, l2, expected) =>
+      zipWith(l1, l2,  _ * _) shouldBe expected
+    }
+
+    forEvery(table) { (l1, l2, expected) =>
+      zipWithTailrec(l1, l2,  _ * _) shouldBe expected
+    }
   }
 
   "3.24" in {
