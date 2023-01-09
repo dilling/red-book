@@ -72,7 +72,7 @@ class chapter04Spec extends AnyFreeSpec with Matchers with TableDrivenPropertyCh
     )
 
     forEvery(table) { (list, expected) =>
-      sequence(list) shouldBe expected
+      Option.sequence(list) shouldBe expected
     }
   }
 
@@ -84,7 +84,7 @@ class chapter04Spec extends AnyFreeSpec with Matchers with TableDrivenPropertyCh
     )
 
     forEvery(table) { (list, expected) =>
-      traverse(list)(a => if a % 2 == 0 then Some(a / 2) else None) shouldBe expected
+      Option.traverse(list)(a => if a % 2 == 0 then Some(a / 2) else None) shouldBe expected
     }
   }
 
@@ -137,6 +137,32 @@ class chapter04Spec extends AnyFreeSpec with Matchers with TableDrivenPropertyCh
 
       forEvery(table) { (left, right, expected) =>
         left.map2(right)(_ * _) shouldBe expected
+      }
+    }
+  }
+
+  "4.7" - {
+    "sequence" in {
+      val table = Table(
+        ("list", "expected"),
+        (List(Right(2), Left("x")), Left("x")),
+        (List(Right(2), Right(3)), Right(List(2,3))),
+      )
+
+      forEvery(table) { (list, expected) =>
+        Either.sequence(list) shouldBe expected
+      }
+    }
+
+    "traverse" in {
+      val table = Table(
+        ("list", "expected"),
+        (List(2, 4), Right(List(1, 2))),
+        (List(2,3,4,5), Left("3")),
+      )
+
+      forEvery(table) { (list, expected) =>
+        Either.traverse(list)(a => if a % 2 == 0 then Right(a / 2) else Left(s"$a")) shouldBe expected
       }
     }
   }

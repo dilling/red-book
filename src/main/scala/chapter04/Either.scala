@@ -17,3 +17,15 @@ enum Either[+E, +A]:
 
   def map2[EE >: E, B, C](that: Either[EE, B])(f: (A, B) => C): Either[EE, C] =
     flatMap(a => that.map(b => f(a,b)))
+
+object Either:
+  def sequence[E, A](as: List[Either[E, A]]): Either[E, List[A]] = 
+    traverse(as)(identity)
+
+  def traverse[E, A, B](as: List[A])(f: A => Either[E, B]): Either[E, List[B]] = 
+    as.reverse.foldLeft(Right(List.empty): Either[E, List[B]]){ (acc, a) => 
+      for 
+        res <- f(a)
+        ls <- acc
+      yield res :: ls
+    }
