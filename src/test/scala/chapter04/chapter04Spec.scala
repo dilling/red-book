@@ -4,6 +4,8 @@ import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.should.Matchers
 import chapter04.Option._
 import org.scalatest.prop.TableDrivenPropertyChecks
+import chapter04.Either
+import chapter04.Either._
 
 class chapter04Spec extends AnyFreeSpec with Matchers with TableDrivenPropertyChecks {
   "4.1" - {
@@ -74,6 +76,18 @@ class chapter04Spec extends AnyFreeSpec with Matchers with TableDrivenPropertyCh
     }
   }
 
+  "4.5" in {
+    val table = Table(
+      ("list", "expected"),
+      (List(2, 3, 4), None),
+      (List(2, 4), Some(List(1,2))),
+    )
+
+    forEvery(table) { (list, expected) =>
+      traverse(list)(a => if a % 2 == 0 then Some(a / 2) else None) shouldBe expected
+    }
+  }
+
   "4.6" - {
     "map" in {
       val table = Table(
@@ -97,6 +111,32 @@ class chapter04Spec extends AnyFreeSpec with Matchers with TableDrivenPropertyCh
       
       forEvery(table) { (either, expected) =>
         either.flatMap(d => if (d == 0) then Left("err") else Right(2 / d)) shouldBe expected
+      }
+    }
+
+    "orElse" in {
+      val table = Table(
+        ("either", "expected"),
+        (Right(1), Right(1)),
+        (Left(1), Right(3)),
+      )
+
+      forEvery(table) { (either, expected) =>
+        either.orElse(Right(3)) shouldBe expected
+      }
+    }
+
+    "map2" in {
+      val table = Table(
+        ("left", "right", "expected"),
+        (Right(1), Left(2), Left(2)),
+        (Left(2), Right(3), Left(2)),
+        (Left(1), Left(2), Left(1)),
+        (Right(2), Right(3), Right(6)),
+      )
+
+      forEvery(table) { (left, right, expected) =>
+        left.map2(right)(_ * _) shouldBe expected
       }
     }
   }
