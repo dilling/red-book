@@ -151,4 +151,108 @@ class chapter05Spec
     }
   }
 
+  "5.8" in {
+    LazyList.continually(1).take(3).toList shouldBe List(1, 1, 1)
+  }
+
+  "5.9" in {
+    LazyList.from(2).takeWhile(_ <= 4).toList shouldBe List(2, 3, 4)
+  }
+
+  "5.10" in {
+    LazyList.fibs.take(7).toList shouldBe List(0, 1, 1, 2, 3, 5, 8)
+  }
+
+  "5.11" in {
+    LazyList
+      .unfold(0)(s =>
+        if (s < 5) Some((s * 2, s + 1))
+        else None
+      )
+      .toList shouldBe List(0, 2, 4, 6, 8)
+  }
+
+  "5.12" - {
+    "fibs" in {
+      LazyList.fibs2.take(7).toList shouldBe List(0, 1, 1, 2, 3, 5, 8)
+    }
+
+    "from" in {
+      LazyList.from2(2).takeWhile(_ <= 4).toList shouldBe List(2, 3, 4)
+    }
+
+    "continually" in {
+      LazyList.continually2(1).take(3).toList shouldBe List(1, 1, 1)
+    }
+
+    "ones" in {
+      LazyList.ones2.take(3).toList shouldBe List(1, 1, 1)
+    }
+  }
+
+  "5.13" - {
+    "map" in {
+      val table = Table(
+        ("list", "expected"),
+        (LazyList(1, 2), List(2, 4)),
+        (LazyList.empty, List.empty)
+      )
+
+      forEvery(table) { (list, expected) =>
+        list.map2(_ * 2).toList shouldBe expected
+      }
+    }
+
+    "take" in {
+      val table = Table(
+        ("list", "expected"),
+        (LazyList(1, 2), List(1, 2)),
+        (LazyList(1, 2, 3, 4), List(1, 2, 3)),
+        (LazyList.empty, List.empty)
+      )
+
+      forEvery(table) { (list, expected) =>
+        list.take2(3).toList shouldBe expected
+      }
+    }
+
+    "takeWhile" in {
+      val table = Table(
+        ("list", "expected"),
+        (LazyList(2), List(2)),
+        (LazyList(1, 2, 3, 4), List(1, 2)),
+        (LazyList.empty, List.empty)
+      )
+
+      forEvery(table) { (list, expected) =>
+        list.takeWhile3(_ <= 2).toList shouldBe expected
+      }
+    }
+
+    "zipWith" in {
+      val table = Table(
+        ("listA", "listB", "expected"),
+        (LazyList(1,2,3), LazyList(2,3), List(2,6)),
+        (LazyList(1,2,3), LazyList(2,3,4,5), List(2,6,12)),
+        (LazyList.empty, LazyList(2,3), List.empty),
+      )
+
+      forEvery(table) { (listA, listB, expected) =>
+        listA.zipWith(listB, _ * _).toList shouldBe expected
+      }
+    }
+
+    "zipAll" in {
+      val table = Table(
+        ("listA", "listB", "expected"),
+        (LazyList(1,2,3), LazyList(2,3), List((Some(1),Some(2)), (Some(2),Some(3)), (Some(3), None))),
+        (LazyList(1,2,3), LazyList(2,3,4,5), List((Some(1),Some(2)), (Some(2),Some(3)), (Some(3),Some(4)), (None, Some(5)))),
+        (LazyList.empty, LazyList(2), List((None, Some(2)))),
+      )
+
+      forEvery(table) { (listA, listB, expected) =>
+        listA.zipAll(listB).toList shouldBe expected
+      }
+    }
+  }
 }

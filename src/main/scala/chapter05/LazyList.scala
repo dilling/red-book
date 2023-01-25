@@ -4,8 +4,6 @@ enum LazyList[+A]:
   case Empty
   case Cons(h: () => A, t: () => LazyList[A])
 
-  import LazyList._
-
   def headOption: Option[A] = this match
     case Empty      => None
     case Cons(h, _) => Some(h())
@@ -41,22 +39,55 @@ enum LazyList[+A]:
     foldRight(true)((a, b) => p(a) && b)
 
   def takeWhile2(p: A => Boolean): LazyList[A] =
-    foldRight(LazyList.empty[A])((a, b) => if (p(a)) cons(a, b) else b)
+    foldRight(LazyList.empty[A])((a, b) => if (p(a)) LazyList.cons(a, b) else b)
 
   def headOption2: Option[A] =
     foldRight(Option.empty[A])((a, _) => Some(a))
 
-  def map[B](f: A => B): LazyList[B] = 
+  def map[B](f: A => B): LazyList[B] =
     foldRight(LazyList.empty[B])((a, b) => LazyList.cons(f(a), b))
 
   def filter(f: A => Boolean): LazyList[A] =
     foldRight(LazyList.empty[A])((a, b) => if (f(a)) LazyList.cons(a, b) else b)
 
-  def append[B >: A](ls: LazyList[B]): LazyList[B] = 
+  def append[B >: A](ls: LazyList[B]): LazyList[B] =
     foldRight(ls)((a, b) => LazyList.cons(a, b))
 
   def flatMap[B](f: A => LazyList[B]): LazyList[B] =
     foldRight(LazyList.empty[B])((a, b) => f(a).append(b))
+
+  def map2[B](f: A => B): LazyList[B] =
+    LazyList.unfold(this) {
+      case Empty      => None
+      case Cons(h, t) => Some((f(h()), t()))
+    }
+
+  def take2(n: Int): LazyList[A] =
+    LazyList.unfold((n, this)) {
+      case (n, Cons(h, t)) if n > 0 => Some((h(), (n - 1, t())))
+      case _                        => None
+    }
+
+  def takeWhile3(p: A => Boolean): LazyList[A] =
+    LazyList.unfold(this) {
+      case Cons(h, t) if (p(h())) => Some(h(), t())
+      case _                      => None
+    }
+
+  def zipWith[B, C](ls: LazyList[B], f: (A, B) => C): LazyList[C] =
+    LazyList.unfold((this, ls)) {
+      case (Cons(a, as), Cons(b, bs)) => Some(f(a(), b()), (as(), bs()))
+      case _                          => None
+    }
+
+  def zipAll[B](that: LazyList[B]): LazyList[(Option[A], Option[B])] =
+    LazyList.unfold((this, that)) {
+      case (Cons(a, as), Cons(b, bs)) =>
+        Some((Some(a()), Some(b())), (as(), bs()))
+      case (Cons(a, as), _) => Some((Some(a()), None), (as(), Empty))
+      case (_, Cons(b, bs)) => Some((None, Some(b())), (Empty, bs()))
+      case _                => None
+    }
 
 object LazyList:
   def cons[A](hd: => A, tl: => LazyList[A]): LazyList[A] =
@@ -69,3 +100,31 @@ object LazyList:
   def apply[A](as: A*): LazyList[A] =
     if as.isEmpty then empty
     else cons(as.head, apply(as.tail*))
+
+  def continually[A](a: A): LazyList[A] =
+    cons(a, continually(a))
+
+  def from(n: Int): LazyList[Int] =
+    cons(n, from(n + 1))
+
+  def fibs: LazyList[Int] =
+    def go(x: Int, y: Int): LazyList[Int] =
+      cons(x, go(y, x + y))
+
+    go(0, 1)
+
+  def unfold[A, S](state: S)(f: S => Option[(A, S)]): LazyList[A] =
+    f(state).fold(LazyList.empty[A]) { case (a, s) =>
+      cons(a, unfold(s)(f))
+    }
+
+  def fibs2: LazyList[Int] =
+    unfold((0, 1)) { case (x, y) => Some((x, (y, x + y))) }
+
+  def from2(n: Int): LazyList[Int] =
+    unfold(n)(s => Some((s, s + 1)))
+
+  def continually2[A](a: A): LazyList[A] =
+    unfold(a)(s => Some((s, s)))
+
+  val ones2: LazyList[Int] = continually2(1)
