@@ -100,4 +100,55 @@ class chapter05Spec
     }
   }
 
+  "5.7" - {
+    "map" in {
+      val table = Table(
+        ("list", "expected"),
+        (LazyList(1, 2), List(2, 4)),
+        (LazyList.empty, List.empty)
+      )
+
+      forEvery(table) { (list, expected) =>
+        list.map(_ * 2).toList shouldBe expected
+      }
+    }
+
+    "filter" in {
+      val table = Table(
+        ("list", "expected"),
+        (LazyList(1, 2, 3, 4), List(2, 4)),
+        (LazyList.empty, List.empty)
+      )
+
+      forEvery(table) { (list, expected) =>
+        list.filter(_ % 2 == 0).toList shouldBe expected
+      }
+    }
+
+    "append" in {
+      val table = Table(
+        ("a", "b", "expected"),
+        (LazyList(1, 2), LazyList(3, 4), List(1, 2, 3, 4)),
+        (LazyList(1, 2), LazyList.empty, List(1, 2)),
+        (LazyList.empty, LazyList(3, 4), List(3, 4))
+      )
+
+      forEvery(table) { (listA, listB, expected) =>
+        listA.append(listB).toList shouldBe expected
+      }
+    }
+
+    "flatMap" in {
+      val table = Table(
+        ("list", "expected"),
+        (LazyList(1, 2), List(1, 1, 2, 2)),
+        (LazyList.empty, List.empty)
+      )
+
+      forEvery(table) { (list, expected) =>
+        list.flatMap(x => LazyList(x, x)).toList shouldBe expected
+      }
+    }
+  }
+
 }
