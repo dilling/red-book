@@ -89,6 +89,25 @@ enum LazyList[+A]:
       case _                => None
     }
 
+  def startsWith[A](prefix: LazyList[A]): Boolean = 
+    zipAll(prefix).forAll {
+      case (Some(a), Some(b)) => a == b
+      case (_, None) => true
+      case _ => false
+    }
+
+  def tails: LazyList[LazyList[A]] =
+    LazyList.unfold(this)(l => l match
+      case Cons(h, t) => Some((l, t()))
+      case Empty => None 
+    )
+
+  def scanRight[B](z: B)(f: (A, => B) => B): LazyList[B] = 
+    foldRight(LazyList(z))((a, b) => b match
+      case Empty => Empty
+      case Cons(h, t) => LazyList.cons(f(a, h()), b)
+    )
+
 object LazyList:
   def cons[A](hd: => A, tl: => LazyList[A]): LazyList[A] =
     lazy val head = hd

@@ -232,9 +232,9 @@ class chapter05Spec
     "zipWith" in {
       val table = Table(
         ("listA", "listB", "expected"),
-        (LazyList(1,2,3), LazyList(2,3), List(2,6)),
-        (LazyList(1,2,3), LazyList(2,3,4,5), List(2,6,12)),
-        (LazyList.empty, LazyList(2,3), List.empty),
+        (LazyList(1, 2, 3), LazyList(2, 3), List(2, 6)),
+        (LazyList(1, 2, 3), LazyList(2, 3, 4, 5), List(2, 6, 12)),
+        (LazyList.empty, LazyList(2, 3), List.empty)
       )
 
       forEvery(table) { (listA, listB, expected) =>
@@ -245,14 +245,61 @@ class chapter05Spec
     "zipAll" in {
       val table = Table(
         ("listA", "listB", "expected"),
-        (LazyList(1,2,3), LazyList(2,3), List((Some(1),Some(2)), (Some(2),Some(3)), (Some(3), None))),
-        (LazyList(1,2,3), LazyList(2,3,4,5), List((Some(1),Some(2)), (Some(2),Some(3)), (Some(3),Some(4)), (None, Some(5)))),
-        (LazyList.empty, LazyList(2), List((None, Some(2)))),
+        (
+          LazyList(1, 2, 3),
+          LazyList(2, 3),
+          List((Some(1), Some(2)), (Some(2), Some(3)), (Some(3), None))
+        ),
+        (
+          LazyList(1, 2, 3),
+          LazyList(2, 3, 4, 5),
+          List(
+            (Some(1), Some(2)),
+            (Some(2), Some(3)),
+            (Some(3), Some(4)),
+            (None, Some(5))
+          )
+        ),
+        (LazyList.empty, LazyList(2), List((None, Some(2))))
       )
 
       forEvery(table) { (listA, listB, expected) =>
         listA.zipAll(listB).toList shouldBe expected
       }
     }
+  }
+
+  "5.14" in {
+    val table = Table(
+      ("List1", "List2", "expected"),
+      (LazyList(1, 2, 3), LazyList(1, 2), true),
+      (LazyList(1, 2, 3), LazyList(3, 4), false),
+      (LazyList(1, 2, 3), LazyList.empty, true),
+      (LazyList(1, 2, 3), LazyList(1, 3), false),
+      (LazyList(1, 2, 3), LazyList(2, 3), false),
+      (LazyList.empty, LazyList(1, 2), false),
+      (LazyList.empty, LazyList.empty, true),
+    )
+
+    forEvery(table) { (l1, l2, expected) =>
+      l1.startsWith(l2) shouldBe expected
+    }
+  }
+
+  "5.15" in {
+    val expected = LazyList(
+      List(1,2,3),
+      List(2,3),
+      List(3),
+      Nil
+    )
+    LazyList(1, 2, 3)
+      .tails
+      .zipWith(expected, _.toList shouldBe _)
+      .toList
+  }
+
+  "5.16" in {
+    LazyList(1, 2, 3).scanRight(0)(_ + _).toList shouldBe List(6, 5, 3, 0)
   }
 }
