@@ -8,6 +8,15 @@ trait RNG:
       case (i, rng) if i < 0 => (-i, rng)
       case default => default
     }
+  
+  def double(rng: RNG): (Double, RNG) = 
+    rng.nonNegativeInt(rng) match {
+      case (0, rng) => (0.0, rng)
+      case (1, rng) => (1 / Int.MaxValue, rng)
+      case (i, rng) => (1 / i, rng)
+    }
+
+  
 
 case class SimpleRNG(seed: Long) extends RNG:
   def nextInt: (Int, RNG) =
