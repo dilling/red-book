@@ -22,9 +22,10 @@ class chapter06Spec
     "double" in {
       (1 to 10).foldLeft(SimpleRNG(42): RNG) { case (rng, _) =>
         val (n, nextRng) = rng.double(rng)
-        n should (be > 0.0 and be < 1.0)
+        n should (be >= 0.0 and be < 1.0)
         nextRng
       }
     }
   }
+
 }
