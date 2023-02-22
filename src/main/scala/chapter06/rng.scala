@@ -1,7 +1,25 @@
 package chapter06
 
+type Rand[+A] = RNG => (A, RNG)
+
 trait RNG:
   def nextInt: (Int, RNG)
+  val int: Rand[Int] = rng => rng.nextInt
+
+  def unit[A](a: A): Rand[A] =
+    rng => (a, rng)
+
+  def map[A, B](s: Rand[A])(f: A => B): Rand[B] =
+    rng =>
+      val (a, rng2) = s(rng)
+      (f(a), rng2)
+
+  def map2[A, B, C](ra: Rand[A], rb: Rand[B])(f: (A, B) => C): Rand[C] = 
+    rng1 =>
+      val (a, rng2) = ra(rng1)
+      val (b, rng3) = rb(rng2)
+      (f(a, b), rng3)
+
   def nonNegativeInt(rng: RNG): (Int, RNG) =
     rng.nextInt match {
       case (i, rng) if i == Int.MinValue => (Int.MaxValue, rng)
@@ -9,11 +27,20 @@ trait RNG:
       case default                       => default
     }
 
-  def double(rng: RNG): (Double, RNG) =
-    rng.nonNegativeInt(rng) match
-      case (0, rng) => (0.0, rng)
-      case (1, rng) => (1 / Int.MaxValue, rng)
-      case (i, rng) => (1 / i, rng)
+  def both[A, B](ra: Rand[A], rb: Rand[B]): Rand[(A, B)] =
+    map2(ra, rb)((_, _))
+
+  val double =
+    map(nonNegativeInt){ 
+      case 0 => 0.0
+      case n => 1.0 / n
+    }
+
+  val randIntDouble: Rand[(Int, Double)] =
+    both(int, double)
+
+  val randDoubleInt: Rand[(Double, Int)] =
+    both(double, int)
 
   def intDouble(rng: RNG): ((Int, Double), RNG) = 
     val (int, rng1) = rng.nextInt
@@ -38,6 +65,15 @@ trait RNG:
         (int :: ls, nextRng)
       }
     }
+
+  def sequence[A](rs: List[Rand[A]]): Rand[List[A]] = 
+    rng =>
+      rs.foldLeft((List.empty[A], rng)){
+        case ((ls, nextRng), rand) =>
+          val (a, newRng) = rand(nextRng)
+          (a :: ls, newRng)
+      }
+    
     
       
 
