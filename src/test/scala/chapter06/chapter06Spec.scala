@@ -92,4 +92,14 @@ class chapter06Spec
     }
   }
 
+  "6.8" - {
+    "nonNegativeLessThan" in {
+      (1 to 10).foldLeft(SimpleRNG(42): RNG) { case (rng, _) =>
+        val (n, nextRng) = rng.nonNegativeLessThan(5)(rng)
+        n should (be >= 0 and be < 5)
+        nextRng
+      }
+    }
+  }
+
 }

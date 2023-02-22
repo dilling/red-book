@@ -20,6 +20,11 @@ trait RNG:
       val (b, rng3) = rb(rng2)
       (f(a, b), rng3)
 
+  def flatMap[A, B](r: Rand[A])(f: A => Rand[B]): Rand[B] = 
+    rng =>
+      val (a, nextRng) = r(rng)
+      f(a)(nextRng)
+
   def nonNegativeInt(rng: RNG): (Int, RNG) =
     rng.nextInt match {
       case (i, rng) if i == Int.MinValue => (Int.MaxValue, rng)
@@ -73,6 +78,13 @@ trait RNG:
           val (a, newRng) = rand(nextRng)
           (a :: ls, newRng)
       }
+
+  def nonNegativeLessThan(n: Int): Rand[Int] =
+    flatMap(nonNegativeInt){ i =>
+      val mod = i % n
+      if i + (n-1) - mod >= 0 then unit(mod) 
+      else nonNegativeLessThan(n)
+    }
     
     
       
