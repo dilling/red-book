@@ -31,6 +31,16 @@ trait RNG:
     val (double3, rng3) = rng.double(rng2)
     ((double1, double2, double3), rng3)
 
+  def ints(count: Int)(rng: RNG): (List[Int], RNG) = 
+    (1 to count).foldRight((List.empty[Int], rng)){
+      case (_, (ls, rng)) => {
+        val (int, nextRng) = nextInt
+        (int :: ls, nextRng)
+      }
+    }
+    
+      
+
 case class SimpleRNG(seed: Long) extends RNG:
   def nextInt: (Int, RNG) =
     val newSeed = (seed * 0x5deece66dL + 0xbL) & 0xffffffffffffL

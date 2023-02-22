@@ -28,4 +28,35 @@ class chapter06Spec
     }
   }
 
+  "6.3" - {
+    "intDouble" in {
+      (1 to 10).foldLeft(SimpleRNG(42): RNG) { case (rng, _) =>
+        val ((int, double), nextRng) = rng.intDouble(rng)
+        nextRng
+      }
+    }
+    
+    "doubleInt" in {
+      (1 to 10).foldLeft(SimpleRNG(42): RNG) { case (rng, _) =>
+        val ((double, int), nextRng) = rng.doubleInt(rng)
+        nextRng
+      }
+    }
+
+    "double3" in {
+      (1 to 10).foldLeft(SimpleRNG(42): RNG) { case (rng, _) =>
+        val ((one, two, three), nextRng) = rng.double3(rng)
+        nextRng
+      }
+    }
+  }
+
+  "6.4" in {
+    (1 to 10).foldLeft(SimpleRNG(42): RNG) { case (rng, _) =>
+      val (ints, nextRng) = rng.ints(3)(rng)
+      ints.size shouldBe 3
+      nextRng
+    }
+  }
+
 }
