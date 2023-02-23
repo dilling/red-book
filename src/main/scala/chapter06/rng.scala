@@ -10,16 +10,11 @@ trait RNG:
     rng => (a, rng)
 
   def map[A, B](s: Rand[A])(f: A => B): Rand[B] =
-    rng =>
-      val (a, rng2) = s(rng)
-      (f(a), rng2)
+    flatMap(s)(f andThen unit)
 
   def map2[A, B, C](ra: Rand[A], rb: Rand[B])(f: (A, B) => C): Rand[C] = 
-    rng1 =>
-      val (a, rng2) = ra(rng1)
-      val (b, rng3) = rb(rng2)
-      (f(a, b), rng3)
-
+    flatMap(ra)(a => flatMap(rb)(b => unit(f(a,b))))
+    
   def flatMap[A, B](r: Rand[A])(f: A => Rand[B]): Rand[B] = 
     rng =>
       val (a, nextRng) = r(rng)
