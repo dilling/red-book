@@ -68,8 +68,8 @@ trait RNG:
 
   def sequence[A](rs: List[Rand[A]]): Rand[List[A]] = 
     rng =>
-      rs.foldLeft((List.empty[A], rng)){
-        case ((ls, nextRng), rand) =>
+      rs.foldRight((List.empty[A], rng)){
+        case (rand, (ls, nextRng)) =>
           val (a, newRng) = rand(nextRng)
           (a :: ls, newRng)
       }
