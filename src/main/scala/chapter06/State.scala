@@ -34,3 +34,12 @@ object State:
           val (a, next) = state(s)
           (a :: xs, next)
       }
+  def get[S]: State[S, S] = s => (s, s)
+
+  def set[S](s: S): State[S, Unit] = _ => ((), s)
+
+  def modify[S](f: S => S): State[S, Unit] =
+    for
+      s <- get
+      _ <- set(f(s))
+    yield ()
