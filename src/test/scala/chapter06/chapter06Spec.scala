@@ -35,7 +35,7 @@ class chapter06Spec
         nextRng
       }
     }
-    
+
     "doubleInt" in {
       (1 to 10).foldLeft(SimpleRNG(42): RNG) { case (rng, _) =>
         val ((double, int), nextRng) = rng.doubleInt(rng)
@@ -86,9 +86,9 @@ class chapter06Spec
       val (res, _) = rng.sequence(ls)(rng)
       res.length shouldBe len
       res match
-        case one :: two :: _ => one should not be(two)
-        case _ => fail("invalid list")
-      
+        case one :: two :: _ => one should not be (two)
+        case _               => fail("invalid list")
+
     }
   }
 
@@ -98,6 +98,83 @@ class chapter06Spec
         val (n, nextRng) = rng.nonNegativeLessThan(5)(rng)
         n should (be >= 0 and be < 5)
         nextRng
+      }
+    }
+  }
+
+  "6.11" - {
+    "simulateMachine" - {
+      "unlock if there is candy left" in {
+        val machine = Machine(true, 1, 4)
+        val inputs = List(Input.Coin)
+
+        val ((candies, coins), updatedMachine) =
+          simulateMachine(inputs).run(machine)
+
+        coins shouldBe 5
+        candies shouldBe 1
+        updatedMachine shouldBe Machine(false, 1, 5)
+      }
+
+      "dispense candy when turned if unlocked" in {
+        val machine = Machine(false, 1, 4)
+        val inputs = List(Input.Turn)
+
+        val ((candies, coins), updatedMachine) =
+          simulateMachine(inputs).run(machine)
+
+        coins shouldBe 4
+        candies shouldBe 0
+        updatedMachine shouldBe Machine(true, 0, 4)
+      }
+
+      "do nothing when turned and locked" in {
+        val machine = Machine(true, 1, 4)
+        val inputs = List(Input.Turn)
+
+        val ((candies, coins), updatedMachine) =
+          simulateMachine(inputs).run(machine)
+
+        coins shouldBe 4
+        candies shouldBe 1
+        updatedMachine shouldBe machine
+      }
+
+      "do nothing when coin inserted and unlocked" in {
+        val machine = Machine(false, 1, 4)
+        val inputs = List(Input.Coin)
+
+        val ((candies, coins), updatedMachine) =
+          simulateMachine(inputs).run(machine)
+
+        coins shouldBe 4
+        candies shouldBe 1
+        updatedMachine shouldBe machine
+      }
+
+      "do nothing when out of candy" in {
+        val machine = Machine(false, 0, 4)
+        val inputs = List(Input.Coin, Input.Turn)
+
+        val ((candies, coins), updatedMachine) =
+          simulateMachine(inputs).run(machine)
+
+        coins shouldBe 4
+        candies shouldBe 0
+        updatedMachine shouldBe machine
+      }
+
+      "return number of coins and candies in machine" in {
+        val machine = Machine(true, 3, 4)
+        val inputs = List.fill(5)(List(Input.Turn, Input.Coin)).flatten
+
+        val ((candies, coins), updatedMachine) =
+          simulateMachine(inputs).run(machine)
+
+        coins shouldBe 7
+        candies shouldBe 0
+        updatedMachine shouldBe Machine(true, 0, 7)
+
       }
     }
   }
