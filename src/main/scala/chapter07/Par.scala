@@ -30,8 +30,10 @@ object Par:
           def isCancelled = false
           def cancel(evenIfRunning: Boolean): Boolean = false
         }
-        
 
+  extension [A](pa: Par[A]) def map[B](f: A => B): Par[B] =
+    pa.map2(unit(()))((a, _) => f(a))
+        
   def fork[A](a: => Par[A]): Par[A] =
     es => es.submit(new Callable[A] { def call = a(es).get })
 
@@ -47,3 +49,6 @@ object Par:
       val fbs: List[Par[B]] = ps.map(asyncF(f))
       sequence(fbs)
     }
+
+  def parFilter[A](as: List[A])(f: A => Boolean): Par[List[A]] =
+    parMap(as)(a => if (f(a)) then Some(a) else None).map(_.flatten)
